@@ -10,7 +10,7 @@ public class Carta
         this.color = color;
         this.figura = figura;
     }
-
+        //getters
     public int getValor(){
         return valor;
     }
