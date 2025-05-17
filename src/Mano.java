@@ -37,7 +37,7 @@ public class Mano {
     }
 
     public int[] contarValores() {
-        int[] contadorFrecuencias = new int[14]; // del 1 al 13
+        int[] contadorFrecuencias = new int[15]; // hasta el 14
 
         for (Carta carta : mano) {
             int valor = carta.getValor();
@@ -49,12 +49,35 @@ public class Mano {
 
 //valor mayor
 
-    public boolean esEscalera() {
+     public boolean esEscalera() {
         ordenar();
-        int[] contadorFrecuencias = contarValores();
-        int consecutivos= 0;
 
-        for (int i = 1; i <= 13; i++) {
+        // Verificar específicamente la escalera A-2-3-4-5 (aquí A es 14)
+        boolean tieneAs = false;
+        boolean tiene2 = false;
+        boolean tiene3 = false;
+        boolean tiene4 = false;
+        boolean tiene5 = false;
+
+        for (Carta carta : mano) {
+            int valor = carta.getValor();
+            if (valor == 14) tieneAs = true;
+            else if (valor == 2) tiene2 = true;
+            else if (valor == 3) tiene3 = true;
+            else if (valor == 4) tiene4 = true;
+            else if (valor == 5) tiene5 = true;
+        }
+
+        // Si tenemos A-2-3-4-5, es una escalera
+        if (tieneAs && tiene2 && tiene3 && tiene4 && tiene5) {
+            return true;
+        }
+
+        // Verificación de escalera normal
+        int[] contadorFrecuencias = contarValores();
+        int consecutivos = 0;
+
+        for (int i = 2; i <= 14; i++) {  // Comienza desde 2 ya que el As ahora es 14
             if (contadorFrecuencias[i] >= 1) {
                 consecutivos++;
                 if (consecutivos == 5) {
@@ -64,6 +87,7 @@ public class Mano {
                 consecutivos = 0;
             }
         }
+
         return false;
     }
     public boolean esEscaleraColor() {
@@ -87,7 +111,7 @@ public class Mano {
 
     public boolean hayUnPar() {
         int[] contadorFrecuencias = contarValores();
-        for (int i = 1; i <= 13; i++) {
+        for (int i = 2; i <= 14; i++) {
             if (contadorFrecuencias[i] == 2) {
                 return true;
             }
@@ -99,7 +123,7 @@ public class Mano {
         int[] contadorFrecuencias = contarValores();
         int pares = 0;
 
-        for (int i = 1; i <= 13; i++) {
+        for (int i = 2; i <= 14; i++) {
             if (contadorFrecuencias[i] == 2) {
                 pares++;
             }
@@ -110,7 +134,7 @@ public class Mano {
     public boolean hayTercia() {
         int[] contadorFrecuencias = contarValores();
 
-        for (int i = 1; i <= 13; i++) {
+        for (int i = 2; i <= 14; i++) {
             if (contadorFrecuencias[i] == 3) {
                 return true;
             }
@@ -120,7 +144,7 @@ public class Mano {
 
     public boolean esPoker(){
         int[] contadorFrecuencias = contarValores();
-        for (int i = 1; i <= 13; i++) {
+        for (int i = 2; i <= 14; i++) {
             if (contadorFrecuencias[i] == 4) {
                 return true;
             }

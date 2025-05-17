@@ -5,7 +5,7 @@ public class Carta {
     private String figura;
 
     public Carta(int valor, String color, String figura){
-        this.valor = valor;
+        this.valor = valor == 1 ? 14 : valor;
         this.color = color;
         this.figura = figura;
     }
@@ -53,7 +53,7 @@ public class Carta {
             case 0:
                 laCarta ="";
                 break;
-            case 1:
+            case 14:
                 laCarta = "A";
                 break;
             case 11:

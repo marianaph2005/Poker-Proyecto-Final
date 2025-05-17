@@ -31,8 +31,7 @@ public class Mazo
 
     private void llenar(int N) {
         //Se itera N veces para generar las N cartas
-        for (int i= 1; i<5; i++) {
-
+        for (int i= N; i<5; i++) {
             for (int j = N; j<14 ; j++){
                 String color = "";
                 String figura = "";
@@ -54,6 +53,11 @@ public class Mazo
                         figura = "espada";
                         color = "negro";
                         break;
+                }
+                 // Convertir el valor 1 a 14 para el As
+                int valorCarta = j;
+                if (j == 1) {
+                    valorCarta = 14;
                 }
                 //se crea un nuevo objeto de la clase Carta para posteriormente añadirla al arreglo
                 Carta carta = new Carta(j,color,figura);
