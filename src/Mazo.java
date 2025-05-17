@@ -5,7 +5,6 @@ import java.util.Random;
 public class Mazo
 {
     private ArrayList<Carta> cartas;
-    private boolean hayJoker = false;
 
     public Mazo() {
         cartas = new ArrayList();
@@ -28,6 +27,8 @@ public class Mazo
         }
     }
 
+
+
     private void llenar(int N) {
         //Se itera N veces para generar las N cartas
         for (int i= 1; i<5; i++) {
@@ -39,19 +40,19 @@ public class Mazo
                 switch (i){
                     case 1:
                         figura = "corazón";
-                        color = "Rojo";
+                        color = "rojo";
                         break;
                     case 2:
                         figura = "diamante";
-                        color = "Rojo";
+                        color = "rojo";
                         break;
                     case 3:
                         figura = "trébol";
-                        color = "Negro";
+                        color = "negro";
                         break;
                     case 4:
                         figura = "espada";
-                        color = "Negro";
+                        color = "negro";
                         break;
                 }
                 //se crea un nuevo objeto de la clase Carta para posteriormente añadirla al arreglo
@@ -61,7 +62,7 @@ public class Mazo
         }
     }
 
-    public void mezclar() {
+    public void barajear() {
 //        Random rnd = new Random();
 //        for (int i = 0; i<cartas.size(); i++){
 //            int posicion = rnd.nextInt(cartas.size());
@@ -116,7 +117,6 @@ public class Mazo
         }
         return mano;
     }
-
 //    public Mazo getMazoDeTamaño(int N){
 //        Mazo nuevoMazo = new Mazo(N);
 //        ArrayList<Carta> nuevasCartas = new ArrayList<>();
@@ -130,3 +130,4 @@ public class Mazo
 //        return nuevoMazo;
 //    }
 }
+

@@ -1,6 +1,5 @@
 
-public class Carta
-{
+public class Carta {
     private int valor;
     private String color;
     private String figura;
@@ -25,11 +24,9 @@ public class Carta
 
 
     public boolean esIgualA(Carta otraCarta) {
-        if(tieneElMismoValor(otraCarta)&&
-                tieneLaMismaFigura(otraCarta) && tieneMismoColor(otraCarta)){
-            return true;
-        }
-        return false;
+        return tieneElMismoValor(otraCarta)
+                && tieneLaMismaFigura(otraCarta)
+                && tieneMismoColor(otraCarta);
     }
 
 
@@ -42,18 +39,13 @@ public class Carta
 
 
     public boolean tieneLaMismaFigura(Carta otraCarta) {
-        if (figura == otraCarta.figura){
-            return true;
-        }
-        return false;
+        return figura.equals(otraCarta.figura);
     }
 
     public boolean tieneMismoColor(Carta otraCarta) {
-        if (color == otraCarta.color){
-            return true;
-        }
-        return false;
+        return color.equals(otraCarta.color);
     }
+
 
     public String toString(){
         String laCarta;
