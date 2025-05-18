@@ -102,6 +102,9 @@ public class Mano {
     public int obtenerCartaAlta(){
         int mayorValor = 0;
         for(Carta carta : mano){
+            if(carta.getValor() == 1){
+                mayorValor = 14;
+            }
             if(carta.getValor() > mayorValor){
                 mayorValor = carta.getValor();
             }
