@@ -217,34 +217,47 @@ public abstract class JuegoPoker {
 
         Jugador jugadorActual = jugadores.get(turnoActual);
 
+        // Obtener cuánto ha apostado el jugador hasta ahora en esta ronda
+        int apuestaAnterior = apuestasAcumuladas.getOrDefault(jugadorActual, 0);
+
+        // Calcular la diferencia que necesita apostar (esto es la clave)
+        int diferencia = cantidadRequerida - apuestaAnterior;
+
+        // Si no hay diferencia a pagar
+        if (diferencia <= 0 && !esApuestaInicial) {
+            mensajeEstado = "Ya has igualado la apuesta actual.";
+            return false;
+        }
+
         // Si el jugador no tiene suficiente, va all-in con lo que tenga
-        int cantidadFinal = Math.min(cantidadRequerida, jugadorActual.getFichas());
+        int cantidadFinal = Math.min(diferencia, jugadorActual.getFichas());
 
         // Realizar la apuesta
-        //Se quitan fichas al jugador y se suman al pozo
         jugadorActual.restarFichas(cantidadFinal);
         pozo += cantidadFinal;
 
-        // Rastrear la apuesta acumulada de este jugador
-        int apuestaAnterior = apuestasAcumuladas.getOrDefault(jugadorActual, 0);
+        // Actualizar la apuesta acumulada de este jugador
         apuestasAcumuladas.put(jugadorActual, apuestaAnterior + cantidadFinal);
 
-        // Actualizar la apuesta actual si es mayor y es una apuesta inicial
-        if (esApuestaInicial && cantidadFinal > apuestaActual) {
-            apuestaActual = cantidadFinal;
+        // Nueva apuesta total del jugador
+        int nuevaApuestaTotal = apuestaAnterior + cantidadFinal;
+
+        // Actualizar la apuesta actual del juego si corresponde
+        if (esApuestaInicial && nuevaApuestaTotal > apuestaActual) {
+            apuestaActual = nuevaApuestaTotal;
         }
 
         // Determinar mensaje según el tipo de apuesta
-        if (cantidadFinal < cantidadRequerida) {
+        if (cantidadFinal < diferencia) {
             // Caso all-in
             jugadorActual.setAllIn(true);
-            mensajeEstado = jugadorActual.getNombre() + " va ALL-IN con " + cantidadFinal + " fichas!";
+            mensajeEstado = jugadorActual.getNombre() + " va ALL-IN con " + cantidadFinal + " fichas! (Total: " + nuevaApuestaTotal + ")";
         } else if (esApuestaInicial) {
-            // Apuesta nueva
-            mensajeEstado = jugadorActual.getNombre() + " apuesta " + cantidadFinal + " fichas.";
+            // Apuesta nueva o aumento
+            mensajeEstado = jugadorActual.getNombre() + " apuesta " + cantidadFinal + " fichas. (Total: " + nuevaApuestaTotal + ")";
         } else {
             // Iguala apuesta
-            mensajeEstado = jugadorActual.getNombre() + " iguala la apuesta de " + apuestaActual + " fichas.";
+            mensajeEstado = jugadorActual.getNombre() + " iguala con " + cantidadFinal + " fichas. (Total: " + nuevaApuestaTotal + ")";
         }
 
         avanzarTurno();
