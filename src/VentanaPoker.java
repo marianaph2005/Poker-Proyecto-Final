@@ -1,6 +1,11 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -16,10 +21,11 @@ public class VentanaPoker extends JFrame {
     private JLayeredPane layeredPane;
     private JLabel fondoLabel;
 
+    private Clip backgroundMusic;
     // Paneles de juego
     private JPanel panelActual;
     private PanelTexasHoldem panelTexasHoldem;
-    //private PanelFiveCard panelFiveCard; // Esta clase deberá ser implementada por tu compañero
+    private PanelPokerCincoCartas panelPokerCincoCartas; // Esta clase deberá ser implementada por tu compañero
 
     // Configuración del juego
     private int numeroJugadores;
@@ -33,7 +39,7 @@ public class VentanaPoker extends JFrame {
      */
     public VentanaPoker() {
         setTitle("Poker Game");
-        setSize(1000, 800);
+        setSize(1500, 850);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -43,93 +49,239 @@ public class VentanaPoker extends JFrame {
         smallBlind = 5;
         bigBlind = 10;
 
-        // Iniciar con el menú principal
-        iniciarMenuPrincipal();
+        // Iniciar con la pantalla de bienvenida
+        iniciarPantallaBienvenida();
+
+        // Reproducir música de fondo
+        reproducirMusica("G:\\4toSemestre\\POO\\Poker-Proyecto-Final\\src\\recursos\\pokerFace.wav");
     }
+
+    private void iniciarPantallaBienvenida() {
+        getContentPane().removeAll();
+
+        layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(1500, 850));
+
+        // 1. Añadir imagen de fondo
+        try {
+            ImageIcon fondoIcon = new ImageIcon("G:\\4toSemestre\\POO\\Poker-Proyecto-Final\\src\\recursos\\fondoPoker.png");
+            // Redimensionar la imagen para que se ajuste al tamaño de la ventana
+            Image imagenRedimensionada = fondoIcon.getImage().getScaledInstance(1500, 850, Image.SCALE_SMOOTH);
+            fondoIcon = new ImageIcon(imagenRedimensionada);
+
+            fondoLabel = new JLabel(fondoIcon);
+            fondoLabel.setBounds(0, 0, 1500, 850);
+            layeredPane.add(fondoLabel, JLayeredPane.DEFAULT_LAYER);
+        } catch (Exception e) {
+            System.err.println("Error al cargar el fondo: " + e.getMessage());
+            // Fondo alternativo si no se puede cargar la imagen
+            fondoLabel = new JLabel();
+            fondoLabel.setBackground(Color.BLACK);
+            fondoLabel.setOpaque(true);
+            fondoLabel.setBounds(0, 0, 1500, 850);
+            layeredPane.add(fondoLabel, JLayeredPane.DEFAULT_LAYER);
+        }
+
+        // 2. Crear panel para el botón (capa superior)
+        JPanel panelBoton = new JPanel();
+        panelBoton.setLayout(new BoxLayout(panelBoton, BoxLayout.Y_AXIS));
+        panelBoton.setOpaque(false);
+        panelBoton.setBounds(0, 0, 1500, 850);
+
+        // 3. Crear título con efecto elegante
+        JLabel tituloLabel = new JLabel("");
+        tituloLabel.setFont(new Font("Serif", Font.BOLD, 72));
+        tituloLabel.setForeground(new Color(255, 215, 0)); // Color dorado
+        tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Añadir efecto de sombra al título
+        tituloLabel.setBorder(BorderFactory.createEmptyBorder(100, 0, 50, 0));
+
+        // 4. Crear botón de inicio
+        JButton botonIniciar = new JButton("INICIAR");
+        estilizarBotonInicio(botonIniciar);
+        botonIniciar.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Añadir acción al botón
+        botonIniciar.addActionListener(e -> iniciarMenuPrincipal());
+
+        // 5. Añadir componentes al panel
+        panelBoton.add(Box.createVerticalGlue()); // Espacio flexible en la parte superior
+        panelBoton.add(tituloLabel);
+        panelBoton.add(Box.createRigidArea(new Dimension(0, 100))); // Espacio fijo entre título y botón
+        panelBoton.add(botonIniciar);
+        panelBoton.add(Box.createVerticalGlue()); // Espacio flexible en la parte inferior
+
+        // 6. Añadir panel al layeredPane
+        layeredPane.add(panelBoton, JLayeredPane.PALETTE_LAYER);
+
+        // 7. Añadir layeredPane al contentPane
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(layeredPane, BorderLayout.CENTER);
+
+        revalidate();
+        repaint();
+    }
+
+    private void estilizarBotonInicio(JButton boton) {
+        boton.setPreferredSize(new Dimension(300, 80));
+        boton.setMaximumSize(new Dimension(300, 80));
+        boton.setFont(new Font("Arial", Font.BOLD, 24));
+        boton.setBackground(new Color(180, 25, 33));
+        boton.setForeground(new Color(242, 211, 174));
+        boton.setFocusPainted(false);
+        boton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 215, 0), 2),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+
+        boton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                boton.setBackground(new Color(200, 60, 30));
+                boton.setForeground(new Color(255, 255, 255));
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                boton.setBackground(new Color(180, 25, 33));
+                boton.setForeground(new Color(242, 211, 174));
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                boton.setBackground(new Color(150, 25, 33));
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                boton.setBackground(new Color(180, 25, 33));
+            }
+        });
+    }
+
+    private void reproducirMusica(String rutaArchivo) {
+        try {
+            File archivoMusica = new File(rutaArchivo);
+            if (!archivoMusica.exists()) {
+                System.err.println("Archivo de música no encontrado: " + rutaArchivo);
+                return;
+            }
+
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(archivoMusica);
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioInputStream);
+
+            // Reproducir en bucle continuo
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+
+            // Control de volumen (opcional)
+            FloatControl gainControl = (FloatControl) backgroundMusic.getControl(FloatControl.Type.MASTER_GAIN);
+            gainControl.setValue(-10.0f); // Reducir volumen (en decibelios)
+
+            // Iniciar reproducción
+            backgroundMusic.start();
+        } catch (Exception e) {
+            System.err.println("Error al reproducir música: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void detenerMusica() {
+        if (backgroundMusic != null && backgroundMusic.isRunning()) {
+            backgroundMusic.stop();
+            backgroundMusic.close();
+        }
+    }
+
 
     /**
      * Muestra el menú principal
      */
     public void iniciarMenuPrincipal() {
+
         getContentPane().removeAll();
 
-        // Usar BorderLayout para organizar mejor los componentes
-        setLayout(new BorderLayout());
+        layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(1500, 850));
 
-        // Panel principal con fondo negro
-        JPanel panelPrincipal = new JPanel();
-        panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
-        panelPrincipal.setBackground(Color.BLACK);
-        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
-
-        // Panel para el logo
-        JPanel panelLogo = new JPanel();
-        panelLogo.setLayout(new FlowLayout(FlowLayout.CENTER));
-        panelLogo.setBackground(Color.BLACK);
-
+        // 1. Primero añadir el fondo (capa inferior)
         try {
-            // Cargar la imagen del logo
-            ImageIcon logoIcon = new ImageIcon("G:\\4toSemestre\\POO\\Poker-Proyecto-Final\\src\\recursos\\fondo_poker.png"); // Cambia esto por la ruta correcta
-            // Redimensionar la imagen
-            Image imagenRedimensionada = logoIcon.getImage().getScaledInstance(500, 500, Image.SCALE_SMOOTH);
-            logoIcon = new ImageIcon(imagenRedimensionada);
+            ImageIcon fondoIcon = new ImageIcon("G:\\4toSemestre\\POO\\Poker-Proyecto-Final\\src\\recursos\\fondoPoker.png");
+            // Redimensionar la imagen para que se ajuste al tamaño de la ventana
+            Image imagenRedimensionada = fondoIcon.getImage().getScaledInstance(1500, 850, Image.SCALE_SMOOTH);
+            fondoIcon = new ImageIcon(imagenRedimensionada);
 
-            JLabel logoLabel = new JLabel(logoIcon);
-            panelLogo.add(logoLabel);
+            JLabel fondoLabel = new JLabel(fondoIcon);
+            fondoLabel.setBounds(0, 0, 1500, 850);
+            layeredPane.add(fondoLabel, JLayeredPane.DEFAULT_LAYER);
         } catch (Exception e) {
-            System.err.println("Error al cargar el logo: " + e.getMessage());
-            // Si falla, mostramos un texto alternativo
-            JLabel logoLabel = new JLabel("M&J ROYALE");
-            logoLabel.setFont(new Font("Serif", Font.BOLD, 48));
-            logoLabel.setForeground(Color.WHITE);
-            panelLogo.add(logoLabel);
+            System.err.println("Error al cargar el fondo: " + e.getMessage());
+            // Fondo alternativo si no se puede cargar la imagen
+            JLabel fondoLabel = new JLabel();
+            fondoLabel.setBackground(Color.BLACK);
+            fondoLabel.setOpaque(true);
+            fondoLabel.setBounds(0, 0, 1500, 850);
+            layeredPane.add(fondoLabel, JLayeredPane.DEFAULT_LAYER);
         }
 
-        // Panel para los botones
+        //Crear panel para componentes
+        JPanel panelComponentes = new JPanel();
+        panelComponentes.setLayout(new BoxLayout(panelComponentes, BoxLayout.Y_AXIS));
+        panelComponentes.setOpaque(false);
+        panelComponentes.setBounds(0, 0, 1500, 850);
+
+        // Añadir título
+        JLabel tituloLabel = new JLabel("SELECCIONA TU JUEGO");
+        tituloLabel.setFont(new Font("Serif", Font.BOLD, 48));
+        tituloLabel.setForeground(new Color(255, 215, 0));
+        tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tituloLabel.setBorder(BorderFactory.createEmptyBorder(80, 0, 50, 0));
+
+        panelComponentes.add(tituloLabel);
+
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.Y_AXIS));
-        panelBotones.setBackground(Color.BLACK);
-        panelBotones.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); // Margen superior
+        panelBotones.setOpaque(false);
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0)); // Margen superior
 
-        // Crear botones
+        // Crear y estilizar botones
         JButton botonTexasHoldem = new JButton("Jugar Texas Hold'em");
         JButton botonFiveCard = new JButton("Jugar Five Card Draw");
         JButton botonConfiguracion = new JButton("Configuraciones");
-        JButton botonSalir = new JButton("Salir");
 
-        // Estilizar botones
+
         estilizarBoton(botonTexasHoldem);
         estilizarBoton(botonFiveCard);
         estilizarBoton(botonConfiguracion);
-        estilizarBoton(botonSalir);
 
-        // Centrar los botones horizontalmente
+
+        // Centrar botones
         botonTexasHoldem.setAlignmentX(Component.CENTER_ALIGNMENT);
         botonFiveCard.setAlignmentX(Component.CENTER_ALIGNMENT);
         botonConfiguracion.setAlignmentX(Component.CENTER_ALIGNMENT);
-        botonSalir.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Añadir botones al panel con separación
+        // Añadir botones con separación
         panelBotones.add(botonTexasHoldem);
         panelBotones.add(Box.createRigidArea(new Dimension(0, 20)));
         panelBotones.add(botonFiveCard);
         panelBotones.add(Box.createRigidArea(new Dimension(0, 20)));
         panelBotones.add(botonConfiguracion);
         panelBotones.add(Box.createRigidArea(new Dimension(0, 20)));
-        panelBotones.add(botonSalir);
 
-        // Añadir los paneles al panel principal
-        panelPrincipal.add(panelLogo);
-        panelPrincipal.add(panelBotones);
+        // Añadir paneles al panel de componentes
+        panelComponentes.add(panelBotones);
 
-        // Añadir panel principal al frame
-        add(panelPrincipal, BorderLayout.CENTER);
+        // Añadir panel de componentes a la capa superior
+        layeredPane.add(panelComponentes, JLayeredPane.PALETTE_LAYER);
 
         // Configurar acciones de los botones
         botonTexasHoldem.addActionListener(e -> configurarJugadores(TEXAS_HOLDEM));
         botonFiveCard.addActionListener(e -> configurarJugadores(FIVE_CARD));
         botonConfiguracion.addActionListener(e -> mostrarConfiguracion());
-        botonSalir.addActionListener(e -> System.exit(0));
+        // Añadir layeredPane al content pane
+        getContentPane().add(layeredPane);
 
         revalidate();
         repaint();
@@ -220,9 +372,17 @@ public class VentanaPoker extends JFrame {
 
     //Configura el número y nombres de jugadores
     private void configurarJugadores(String tipoJuego) {
-        // Seleccionar número de jugadores
-        String[] opcionesNumJugadores = {"2 Jugadores", "3 Jugadores", "4 Jugadores", "5 Jugadores", "6 Jugadores",
-                "7 Jugadores", "8 Jugadores", "9 Jugadores", "10 Jugadores"};
+
+        String[] opcionesNumJugadores;
+
+        if (tipoJuego.equals(TEXAS_HOLDEM)){
+            opcionesNumJugadores = new String[]{"2 Jugadores", "3 Jugadores", "4 Jugadores", "5 Jugadores", "6 Jugadores",
+                    "7 Jugadores", "8 Jugadores","9 Jugadores", "10 Jugadores"};
+        } else {
+            opcionesNumJugadores = new String[]{"2 Jugadores", "3 Jugadores", "4 Jugadores", "5 Jugadores", "6 Jugadores",
+                    "7 Jugadores", "8 Jugadores"};
+        }
+
         int seleccion = JOptionPane.showOptionDialog(
                 this,
                 "Seleccione el número de jugadores:",
@@ -231,11 +391,12 @@ public class VentanaPoker extends JFrame {
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 opcionesNumJugadores,
-                opcionesNumJugadores[2]); // 4 jugadores por defecto
+                opcionesNumJugadores[0]);
 
         if (seleccion == JOptionPane.CLOSED_OPTION) {
             return; // Se canceló
         }
+
 
         // Actualizar número de jugadores
         numeroJugadores = seleccion + 2;
@@ -271,6 +432,7 @@ public class VentanaPoker extends JFrame {
 
     //Inicia el juego con el tipo seleccionado
     private void iniciarJuego(String tipoJuego) {
+        detenerMusica();
         // Limpiar contenido anterior
         getContentPane().removeAll();
 
@@ -285,16 +447,13 @@ public class VentanaPoker extends JFrame {
             panelActual = panelTexasHoldem;
 
         } else if (tipoJuego.equals(FIVE_CARD)) {
-            // Crear juego Five Card Draw
-            // FiveCardDraw juegoFiveCard = new FiveCardDraw(numeroJugadores, fichasIniciales);
-            // juegoFiveCard.establecerNombresJugadores(nombresJugadores);
+            // Crear juego de Five Card Draw
+            PokerCincoCartas juegoPokerCincoCartas = new PokerCincoCartas(numeroJugadores, fichasIniciales);
+            juegoPokerCincoCartas.establecerNombresJugadores(nombresJugadores);
 
             // Crear panel y asignar al panel actual
-            // panelFiveCard = new PanelFiveCard(juegoFiveCard, this);
-            // panelActual = panelFiveCard;
-
-            iniciarMenuPrincipal();
-            return;
+            panelPokerCincoCartas = new PanelPokerCincoCartas(juegoPokerCincoCartas, this);
+            panelActual = panelPokerCincoCartas;
         }
 
         // Añadir el panel al contenedor principal
@@ -304,6 +463,12 @@ public class VentanaPoker extends JFrame {
         // Actualizar ventana
         revalidate();
         repaint();
+    }
+
+    @Override
+    public void dispose() {
+        detenerMusica();
+        super.dispose();
     }
 
     //Método main para iniciar la aplicación
