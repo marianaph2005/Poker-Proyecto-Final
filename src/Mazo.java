@@ -38,19 +38,19 @@ public class Mazo
                 //Switch Case para asignar la figura y su respectivo color
                 switch (i){
                     case 1:
-                        figura = "corazón";
+                        figura = "corazones";
                         color = "rojo";
                         break;
                     case 2:
-                        figura = "diamante";
+                        figura = "diamantes";
                         color = "rojo";
                         break;
                     case 3:
-                        figura = "trébol";
+                        figura = "tréboles";
                         color = "negro";
                         break;
                     case 4:
-                        figura = "espada";
+                        figura = "espadas";
                         color = "negro";
                         break;
                 }
