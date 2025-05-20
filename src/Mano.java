@@ -166,27 +166,6 @@ public class Mano {
         return cuantasHay;
     }
 
-//    public int cualEsLaLongitudDeLaEscalera() {
-//        int longitud = 1;
-//        int longitudAntigua = 1;
-//        ordenar();
-//        for (int i = 0; i < mano.size() - 1; i++) {
-//            Carta carta1 = mano.get(i);
-//            Carta carta2 = mano.get(i + 1);
-//            if (carta1.getValor() == carta2.getValor() - 1) {
-//                longitud++;
-//            } else {
-//                longitudAntigua = longitud;
-//                longitud = 1;
-//            }
-//        }
-//        if (longitudAntigua > longitud) {
-//            return longitudAntigua;
-//        } else {
-//            return longitud;
-//        }
-//    }
-
     public boolean sonDelMismoPalo() {
         String figura = mano.get(0).getFigura();
         return mano.stream().allMatch(c -> figura.equals(c.getFigura()));

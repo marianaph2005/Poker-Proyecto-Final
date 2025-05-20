@@ -506,11 +506,6 @@ public abstract class JuegoPoker {
             return cantidad;
         }
 
-        // Suma una cantidad al pozo lateral
-        public void agregarCantidad(int valor) {
-            cantidad += valor;
-        }
-
         public ArrayList<Jugador> getJugadoresElegibles() {
             return jugadoresElegibles;
         }
